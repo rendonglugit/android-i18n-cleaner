@@ -1,7 +1,7 @@
-# Android i18n 资源一键批处理工具
+# Android i18n Cleaner (资源清洗与安全转义工具)
 
 <p align="center">
-  <strong>零依赖、纯前端本地处理的 Android 国际化资源 (<code>strings.xml</code>) 批处理与安全转义工具。</strong>
+  <strong>零依赖、100% 纯本地计算的 Android 国际化资源 (<code>strings.xml</code>) 批处理与安全转义神器。</strong>
 </p>
 
 <p align="center">
@@ -13,10 +13,11 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/运行环境-Web%20(跨平台)-blue" alt="Platform">
-  <img src="https://img.shields.io/badge/安全-100%25%20纯本地计算-brightgreen" alt="Client-Side Only">
-  <img src="https://img.shields.io/badge/开源协议-MIT-orange" alt="License">
-  <img src="https://img.shields.io/badge/GitHub%20Pages-支持-success" alt="GitHub Pages">
+  <img src="https://img.shields.io/badge/项目-Android%20i18n%20Cleaner-blue?style=flat-square" alt="Project">
+  <img src="https://img.shields.io/badge/安全-100%25%20纯本地计算-brightgreen?style=flat-square" alt="Client-Side Only">
+  <img src="https://img.shields.io/badge/运行环境-Web%20(跨平台)-blue?style=flat-square" alt="Platform">
+  <img src="https://img.shields.io/badge/开源协议-MIT-orange?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/GitHub%20Pages-支持-success?style=flat-square" alt="GitHub Pages">
 </p>
 
 ---

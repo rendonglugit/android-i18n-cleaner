@@ -1,7 +1,7 @@
-# Android i18n Resource Batch Processor
+# Android i18n Cleaner
 
 <p align="center">
-  <strong>A zero-dependency, pure client-side web tool for batch cleaning and escaping Android internationalization (<code>strings.xml</code>) resources.</strong>
+  <strong>A zero-dependency, 100% client-side web tool for batch cleaning and safely escaping Android internationalization (<code>strings.xml</code>) resources.</strong>
 </p>
 
 <p align="center">
@@ -13,10 +13,11 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Platform-Web%20(Cross--Platform)-blue" alt="Platform">
-  <img src="https://img.shields.io/badge/Security-100%25%20Client--Side-brightgreen" alt="Client-Side Only">
-  <img src="https://img.shields.io/badge/License-MIT-orange" alt="License">
-  <img src="https://img.shields.io/badge/GitHub%20Pages-Ready-success" alt="GitHub Pages">
+  <img src="https://img.shields.io/badge/Project-Android%20i18n%20Cleaner-blue?style=flat-square" alt="Project">
+  <img src="https://img.shields.io/badge/Security-100%25%20Client--Side-brightgreen?style=flat-square" alt="Client-Side Only">
+  <img src="https://img.shields.io/badge/Platform-Web%20(Cross--Platform)-blue?style=flat-square" alt="Platform">
+  <img src="https://img.shields.io/badge/License-MIT-orange?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/GitHub%20Pages-Ready-success?style=flat-square" alt="GitHub Pages">
 </p>
 
 ---
