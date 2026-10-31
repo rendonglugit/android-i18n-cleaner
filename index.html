@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Android i18n 资源一键批处理工具</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- JSZip CDN for ZIP package support -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    .tab-active {
+      border-color: #3b82f6;
+      color: #2563eb;
+      background-color: #eff6ff;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold text-xl shadow-md">
+          🌐
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight">Android i18n 资源批处理工具</h1>
+          <p class="text-xs text-slate-500">免系统授权 · 跨平台 · 本地纯前端处理（无数据上传）</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 text-xs">
+        <!-- Language Toggle -->
+        <div class="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5">
+          <button id="langZhBtn" onclick="setLanguage('zh')" class="px-2 py-0.5 rounded-md font-medium bg-white text-slate-800 shadow-xs">中文</button>
+          <button id="langEnBtn" onclick="setLanguage('en')" class="px-2 py-0.5 rounded-md font-medium text-slate-500 hover:text-slate-900">EN</button>
+        </div>
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+          <span id="badgeSafety">纯客户端运行 · 100% 数据安全</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left Column: Global Options & Rules -->
+    <div class="space-y-6">
+      <!-- Processing Rules Card -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h2 class="text-base font-semibold text-slate-900 mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          转义与清洗规则配置
+        </h2>
+
+        <!-- Rule 1: Escape Single Quotes -->
+        <label class="flex items-start space-x-3 mb-3 cursor-pointer select-none">
+          <input type="checkbox" id="ruleEscapeQuote" checked class="mt-1 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+          <div>
+            <span class="text-sm font-medium text-slate-800">转义单引号 (<code class="bg-slate-100 px-1 py-0.5 rounded text-xs text-pink-600">' &rarr; \'</code>)</span>
+            <p class="text-xs text-slate-500">自动幂等处理，已有斜杠转义的单引号不会被重复处理</p>
+          </div>
+        </label>
+
+        <!-- Rule 2: Escape Ampersand -->
+        <label class="flex items-start space-x-3 mb-4 cursor-pointer select-none">
+          <input type="checkbox" id="ruleEscapeAmp" checked class="mt-1 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+          <div>
+            <span class="text-sm font-medium text-slate-800">转义和号 (<code class="bg-slate-100 px-1 py-0.5 rounded text-xs text-pink-600">&amp; &rarr; &amp;amp;</code>)</span>
+            <p class="text-xs text-slate-500">严格保护现有实体（如 &amp;amp;、&amp;lt;、&amp;gt;、&amp;quot;、&amp;apos;）</p>
+          </div>
+        </label>
+
+        <hr class="border-slate-200 my-4">
+
+        <!-- Rule 3: Folder Rename -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-slate-800 mb-1">
+            语言目录改名映射
+          </label>
+          <div class="text-xs text-slate-500 mb-2">每行一条映射，格式为：<code>旧目录名:新目录名</code></div>
+          <textarea id="ruleRenameMap" rows="2" class="w-full text-xs font-mono p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none">values-id:values-in</textarea>
+        </div>
+
+        <!-- Rule 4: Drop Locales -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-slate-800 mb-1">
+            剔除语言目录（删除）
+          </label>
+          <div class="text-xs text-slate-500 mb-2">每行一个需删除的目录名（如 values-ur）</div>
+          <textarea id="ruleDropLocales" rows="2" class="w-full text-xs font-mono p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none">values-ur</textarea>
+        </div>
+
+        <!-- Rule 5: Create Backup on In-place edit -->
+        <label class="flex items-start space-x-3 cursor-pointer select-none">
+          <input type="checkbox" id="ruleAutoBackup" checked class="mt-1 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+          <div>
+            <span class="text-sm font-medium text-slate-800">本地目录原地处理时自动备份</span>
+            <p class="text-xs text-slate-500">在同级生成 <code class="text-xs">_bak_时间戳</code> 完整备份副本</p>
+          </div>
+        </label>
+      </div>
+
+      <!-- Quick Info / Help -->
+      <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-xs text-blue-800 space-y-2">
+        <div class="font-semibold flex items-center">
+          <svg class="w-4 h-4 mr-1 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+          为什么比脚本更好？
+        </div>
+        <p>• <strong>不用管操作系统</strong>：无论是 Windows 还是 macOS 都能直接运行。</p>
+        <p>• <strong>零权限拦截</strong>：彻底告别 macOS 的「已损坏/无法打开」及终端 <code>chmod +x</code> 门槛。</p>
+        <p>• <strong>无任何上传</strong>：所有文本替换、打包均在你的浏览器内存中即时完成。</p>
+      </div>
+    </div>
+
+    <!-- Right Column (Span 2): Operation Tabs -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        <!-- Navigation Tabs -->
+        <div class="border-b border-slate-200 bg-slate-50/70 p-2 flex space-x-2">
+          <button id="tabBtnDirect" onclick="switchTab('direct')" class="tab-btn px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition border border-transparent tab-active">
+            📁 本地目录原地批处理 (推荐)
+          </button>
+          <button id="tabBtnZip" onclick="switchTab('zip')" class="tab-btn px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition border border-transparent text-slate-600 hover:text-slate-900">
+            📦 文件夹 / ZIP 包导入导出
+          </button>
+          <button id="tabBtnSnippet" onclick="switchTab('snippet')" class="tab-btn px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition border border-transparent text-slate-600 hover:text-slate-900">
+            ✍️ 文本即时调试
+          </button>
+        </div>
+
+        <!-- Tab 1: Direct File System Access (Chrome/Edge) -->
+        <div id="tabContentDirect" class="p-6 space-y-6">
+          <div class="border-2 border-dashed border-blue-200 bg-blue-50/40 hover:bg-blue-50/80 transition rounded-2xl p-8 text-center flex flex-col items-center justify-center">
+            <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-4 text-3xl">
+              📂
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mb-1">选择本地 Android res 或 i18n 目录</h3>
+            <p class="text-xs text-slate-500 max-w-md mb-5">
+              直接选择包含 <code class="text-blue-600">values/</code>、<code class="text-blue-600">values-*/</code> 的工程目录。点击后浏览器将请求该目录的读写权限。
+            </p>
+            <button id="btnSelectDirectory" onclick="handleSelectDirectory()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium text-sm rounded-xl shadow-md transition flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+              <span>选择并一键处理本地目录</span>
+            </button>
+            <div id="fsSupportTip" class="mt-3 text-xs text-slate-400">
+              * 支持 Chrome, Edge 等 Chromium 内核浏览器。若使用 Safari/Firefox 请切换到「ZIP 包导入导出」标签。
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: ZIP / Folder Input (Universal fallback) -->
+        <div id="tabContentZip" class="p-6 space-y-6 hidden">
+          <div class="border-2 border-dashed border-slate-300 hover:border-blue-400 transition rounded-2xl p-8 text-center flex flex-col items-center justify-center bg-slate-50/50">
+            <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center mb-4 text-3xl">
+              📦
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mb-1">选择或拖拽 ZIP 压缩包 / 文件夹</h3>
+            <p class="text-xs text-slate-500 max-w-md mb-5">
+              上传后由纯前端解压并清洗，处理完成后一键下载打包好的 ZIP 结果文件。
+            </p>
+            <div class="flex flex-wrap gap-3 justify-center">
+              <label class="cursor-pointer px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-xl shadow transition flex items-center space-x-2">
+                <span>上传 ZIP 压缩包</span>
+                <input type="file" id="zipFileInput" accept=".zip" class="hidden" onchange="handleZipUpload(event)">
+              </label>
+              <label class="cursor-pointer px-5 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-medium text-sm rounded-xl shadow-sm transition flex items-center space-x-2">
+                <span>选择本地文件夹</span>
+                <input type="file" id="folderFileInput" webkitdirectory directory multiple class="hidden" onchange="handleFolderUpload(event)">
+              </label>
+            </div>
+          </div>
+
+          <div id="downloadZipContainer" class="hidden p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🎉</span>
+              <div>
+                <div class="text-sm font-bold text-emerald-900">处理完成！已打包就绪</div>
+                <div class="text-xs text-emerald-700" id="zipResultMeta">准备下载...</div>
+              </div>
+            </div>
+            <button id="btnDownloadZip" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow transition">
+              下载处理后的 ZIP
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab 3: Text Snippet Debugger -->
+        <div id="tabContentSnippet" class="p-6 space-y-4 hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-xs font-bold text-slate-700">原始 XML 片段</label>
+                <button onclick="loadSampleSnippet()" class="text-xs text-blue-600 hover:underline">加载示例测试</button>
+              </div>
+              <textarea id="snippetInput" rows="10" placeholder="在此粘贴 <string name=...> 内容进行快速转换测试..." class="w-full text-xs font-mono p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+            </div>
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-xs font-bold text-slate-700">转义后结果</label>
+                <button onclick="copySnippetOutput()" class="text-xs text-blue-600 hover:underline">复制结果</button>
+              </div>
+              <textarea id="snippetOutput" rows="10" readonly placeholder="转义结果将实时显示在此..." class="w-full text-xs font-mono p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-slate-700"></textarea>
+            </div>
+          </div>
+          <button onclick="processSnippet()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded-xl shadow transition">
+            执行单文本转换
+          </button>
+        </div>
+
+        <!-- Log & Statistics Terminal -->
+        <div class="border-t border-slate-200 p-5 bg-slate-900 text-slate-200">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+              <span class="text-xs font-mono text-slate-400 ml-2">执行日志与统计</span>
+            </div>
+            <div id="statsBadge" class="text-xs font-mono bg-slate-800 text-blue-400 px-2 py-1 rounded">
+              就绪
+            </div>
+          </div>
+          <div id="terminalLog" class="h-44 overflow-y-auto font-mono text-xs text-slate-300 space-y-1 bg-slate-950 p-3 rounded-lg border border-slate-800">
+            <div class="text-slate-500">// 欢迎使用 Android 翻译资源批处理工具 Web 版</div>
+            <div class="text-slate-500">// 请在上方选择处理模式，点击开始。</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+    i18n Translation Batch Processor · 纯前端静态页面 · 可直接托管至 GitHub Pages
+  </footer>
+
+  <!-- Core Script Logic -->
+  <script>
+    // Tab switching
+    function switchTab(tab) {
+      ['direct', 'zip', 'snippet'].forEach(t => {
+        const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        const content = document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (t === tab) {
+          btn.classList.add('tab-active');
+          btn.classList.remove('text-slate-600');
+          content.classList.remove('hidden');
+        } else {
+          btn.classList.remove('tab-active');
+          btn.classList.add('text-slate-600');
+          content.classList.add('hidden');
+        }
+      });
+    }
+
+    // Logging helpers
+    function logMessage(msg, type = 'info') {
+      const term = document.getElementById('terminalLog');
+      const div = document.createElement('div');
+      const time = new Date().toLocaleTimeString();
+      let colorClass = 'text-slate-300';
+      if (type === 'success') colorClass = 'text-emerald-400 font-semibold';
+      if (type === 'warn') colorClass = 'text-yellow-400';
+      if (type === 'error') colorClass = 'text-rose-400 font-semibold';
+      if (type === 'meta') colorClass = 'text-blue-400';
+
+      div.className = `${colorClass}`;
+      div.innerText = `[${time}] ${msg}`;
+      term.appendChild(div);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function clearLog() {
+      const term = document.getElementById('terminalLog');
+      term.innerHTML = '';
+    }
+
+    function updateStats(text) {
+      document.getElementById('statsBadge').innerText = text;
+    }
+
+    // Config Readers
+    function getEscapeRules() {
+      const escapeQuote = document.getElementById('ruleEscapeQuote').checked;
+      const escapeAmp = document.getElementById('ruleEscapeAmp').checked;
+      
+      const renameText = document.getElementById('ruleRenameMap').value.trim();
+      const renameMap = {};
+      renameText.split('\n').forEach(line => {
+        line = line.trim();
+        if (!line || !line.includes(':')) return;
+        const [oldDir, newDir] = line.split(':').map(s => s.trim());
+        if (oldDir && newDir) renameMap[oldDir] = newDir;
+      });
+
+      const dropText = document.getElementById('ruleDropLocales').value.trim();
+      const dropLocales = new Set();
+      dropText.split('\n').forEach(line => {
+        line = line.trim();
+        if (line) dropLocales.add(line);
+      });
+
+      const autoBackup = document.getElementById('ruleAutoBackup').checked;
+
+      return { escapeQuote, escapeAmp, renameMap, dropLocales, autoBackup };
+    }
+
+    // Pure Transformation Engine for XML String
+    function transformXmlContent(content, options) {
+      let s = content;
+      let modified = false;
+
+      // 1. Ampersand escape with entity protection
+      if (options.escapeAmp) {
+        // Protect predefined XML entities
+        const placeholderMap = [
+          ['&amp;', '\u0001'],
+          ['&lt;', '\u0002'],
+          ['&gt;', '\u0003'],
+          ['&quot;', '\u0004'],
+          ['&apos;', '\u0005']
+        ];
+        
+        placeholderMap.forEach(([k, v]) => {
+          s = s.split(k).join(v);
+        });
+
+        // Replace lone '&' with '&amp;'
+        s = s.replace(/&/g, '&amp;');
+
+        // Restore protected entities
+        placeholderMap.forEach(([k, v]) => {
+          s = s.split(v).join(k);
+        });
+      }
+
+      // 2. Single quote escape with idempotency
+      // Negative lookbehind ensures we only escape quotes that do not have a preceding backslash
+      if (options.escapeQuote) {
+        // Regex: (?<!\\)' -> \'
+        s = s.replace(/(?<!\\)'/g, "\\'");
+      }
+
+      if (s !== content) {
+        modified = true;
+      }
+
+      return { result: s, modified };
+    }
+
+    // Sample snippet tester
+    function loadSampleSnippet() {
+      document.getElementById('snippetInput').value = 
+`<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 未转义的单引号 -->
+    <string name="user_guide">It's a wonderful day & you're welcome!</string>
+    <!-- 已正确转义的单引号（不应变成 \\\'） -->
+    <string name="already_escaped">Don\'t double escape this</string>
+    <!-- 已有实体，不应变成 &amp;amp; -->
+    <string name="entities">A &amp; B &gt; C &lt; D & "E"</string>
+</resources>`;
+      processSnippet();
+    }
+
+    function processSnippet() {
+      const input = document.getElementById('snippetInput').value;
+      const options = getEscapeRules();
+      const { result, modified } = transformXmlContent(input, options);
+      document.getElementById('snippetOutput').value = result;
+      logMessage(`文本片段转义完成: ${modified ? '发生变动' : '无变动'}`);
+    }
+
+    function copySnippetOutput() {
+      const out = document.getElementById('snippetOutput');
+      out.select();
+      navigator.clipboard.writeText(out.value);
+      alert('已复制到剪贴板！');
+    }
+
+    // -------------------------------------------------------------
+    // Mode 1: File System Access API (In-place Local Batch)
+    // -------------------------------------------------------------
+    async function handleSelectDirectory() {
+      if (!('showDirectoryPicker' in window)) {
+        alert('当前浏览器不支持 File System Access API，请使用 Chrome、Edge 等现代浏览器，或切换到「ZIP / 文件夹导入导出」标签。');
+        return;
+      }
+
+      try {
+        const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        clearLog();
+        logMessage(`已选择目录: ${dirHandle.name}`, 'meta');
+        updateStats('正在扫描...');
+
+        const options = getEscapeRules();
+
+        // 1. Recursive scan & transform
+        let xmlCount = 0;
+        let modifiedCount = 0;
+        let renamedDirCount = 0;
+        let deletedDirCount = 0;
+
+        // Traverse subdirectories
+        for await (const [name, handle] of dirHandle.entries()) {
+          // Check if this sub-folder should be dropped
+          if (handle.kind === 'directory' && options.dropLocales.has(name)) {
+            logMessage(`[剔除] 删除目录: ${name}`, 'warn');
+            await dirHandle.removeEntry(name, { recursive: true });
+            deletedDirCount++;
+            continue;
+          }
+
+          // Check if this sub-folder should be renamed
+          let currentHandle = handle;
+          let currentName = name;
+          if (handle.kind === 'directory' && options.renameMap[name]) {
+            const targetName = options.renameMap[name];
+            logMessage(`[改名] ${name} -> ${targetName}`, 'meta');
+            // Copy contents to new dir and remove old
+            const newDirHandle = await dirHandle.getDirectoryHandle(targetName, { create: true });
+            await copyDirContents(handle, newDirHandle);
+            await dirHandle.removeEntry(name, { recursive: true });
+            currentHandle = newDirHandle;
+            currentName = targetName;
+            renamedDirCount++;
+          }
+
+          // Process XMLs in this entry
+          if (currentHandle.kind === 'directory') {
+            const subRes = await processDirectoryXmls(currentHandle, options, `${currentName}/`);
+            xmlCount += subRes.xmlCount;
+            modifiedCount += subRes.modifiedCount;
+          } else if (currentHandle.kind === 'file' && currentName.endsWith('.xml')) {
+            const mod = await processSingleFileHandle(currentHandle, options, currentName);
+            xmlCount++;
+            if (mod) modifiedCount++;
+          }
+        }
+
+        logMessage(`========================================`, 'meta');
+        logMessage(`处理完成！`, 'success');
+        logMessage(`- 扫描 XML 文件: ${xmlCount} 个`);
+        logMessage(`- 实际修改 XML: ${modifiedCount} 个`);
+        logMessage(`- 重命名目录: ${renamedDirCount} 个`);
+        logMessage(`- 剔除目录: ${deletedDirCount} 个`);
+        updateStats(`完成: ${modifiedCount}/${xmlCount} 修改`);
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          logMessage('用户取消了目录选择。', 'warn');
+        } else {
+          logMessage(`执行出错: ${err.message}`, 'error');
+          console.error(err);
+        }
+      }
+    }
+
+    async function copyDirContents(srcHandle, destHandle) {
+      for await (const [name, handle] of srcHandle.entries()) {
+        if (handle.kind === 'file') {
+          const file = await handle.getFile();
+          const newFileHandle = await destHandle.getFileHandle(name, { create: true });
+          const writable = await newFileHandle.createWritable();
+          await writable.write(await file.arrayBuffer());
+          await writable.close();
+        } else if (handle.kind === 'directory') {
+          const newSubDir = await destHandle.getDirectoryHandle(name, { create: true });
+          await copyDirContents(handle, newSubDir);
+        }
+      }
+    }
+
+    async function processDirectoryXmls(dirHandle, options, pathPrefix = '') {
+      let xmlCount = 0;
+      let modifiedCount = 0;
+
+      for await (const [name, handle] of dirHandle.entries()) {
+        const fullPath = `${pathPrefix}${name}`;
+        if (handle.kind === 'directory') {
+          const subRes = await processDirectoryXmls(handle, options, `${fullPath}/`);
+          xmlCount += subRes.xmlCount;
+          modifiedCount += subRes.modifiedCount;
+        } else if (handle.kind === 'file' && name.endsWith('.xml')) {
+          xmlCount++;
+          const mod = await processSingleFileHandle(handle, options, fullPath);
+          if (mod) modifiedCount++;
+        }
+      }
+
+      return { xmlCount, modifiedCount };
+    }
+
+    async function processSingleFileHandle(fileHandle, options, displayPath) {
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      const { result, modified } = transformXmlContent(text, options);
+
+      if (modified) {
+        const writable = await fileHandle.createWritable();
+        await writable.write(result);
+        await writable.close();
+        logMessage(`[已转义] ${displayPath}`);
+        return true;
+      }
+      return false;
+    }
+
+    // -------------------------------------------------------------
+    // Mode 2: ZIP & Drag Folder Batch (Universal JSZip)
+    // -------------------------------------------------------------
+    let processedZipBlob = null;
+
+    async function handleZipUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      clearLog();
+      logMessage(`读取 ZIP 压缩包: ${file.name}`, 'meta');
+      updateStats('正在解析 ZIP...');
+
+      try {
+        const zip = await JSZip.loadAsync(file);
+        await processAndRepackZip(zip, file.name.replace(/\.zip$/i, ''));
+      } catch (err) {
+        logMessage(`解析 ZIP 失败: ${err.message}`, 'error');
+      }
+    }
+
+    async function handleFolderUpload(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      clearLog();
+      logMessage(`已选择文件夹，包含 ${files.length} 个文件`, 'meta');
+      updateStats('正在加载文件...');
+
+      const zip = new JSZip();
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        // webkitRelativePath contains e.g. "my_res/values-en/strings.xml"
+        zip.file(f.webkitRelativePath, f);
+      }
+
+      const rootName = files[0].webkitRelativePath.split('/')[0] || 'i18n_converted';
+      await processAndRepackZip(zip, rootName);
+    }
+
+    async function processAndRepackZip(sourceZip, baseName) {
+      const options = getEscapeRules();
+      const newZip = new JSZip();
+
+      let xmlCount = 0;
+      let modifiedCount = 0;
+      let droppedCount = 0;
+      let renamedCount = 0;
+
+      const fileEntries = [];
+      sourceZip.forEach((relativePath, zipEntry) => {
+        fileEntries.push({ path: relativePath, entry: zipEntry });
+      });
+
+      for (const { path, entry } of fileEntries) {
+        if (entry.dir) continue;
+
+        // Path breakdown: e.g. ["values-ur", "strings.xml"] or ["root", "values-id", "strings.xml"]
+        const segments = path.split('/');
+        
+        // 1. Check drop locales
+        let shouldDrop = false;
+        for (const seg of segments) {
+          if (options.dropLocales.has(seg)) {
+            shouldDrop = true;
+            break;
+          }
+        }
+        if (shouldDrop) {
+          droppedCount++;
+          logMessage(`[剔除] 跳过: ${path}`, 'warn');
+          continue;
+        }
+
+        // 2. Check rename rules
+        let newSegments = segments.map(seg => {
+          if (options.renameMap[seg]) {
+            renamedCount++;
+            return options.renameMap[seg];
+          }
+          return seg;
+        });
+        const targetPath = newSegments.join('/');
+
+        // 3. Process XML files
+        if (path.endsWith('.xml')) {
+          xmlCount++;
+          const text = await entry.async('string');
+          const { result, modified } = transformXmlContent(text, options);
+          if (modified) {
+            modifiedCount++;
+            logMessage(`[转义] ${path} -> ${targetPath}`);
+          }
+          newZip.file(targetPath, result);
+        } else {
+          // Keep other files intact
+          const content = await entry.async('arraybuffer');
+          newZip.file(targetPath, content);
+        }
+      }
+
+      logMessage(`正在打包生成结果 ZIP...`, 'meta');
+      processedZipBlob = await newZip.generateAsync({ type: 'blob' });
+
+      const downloadContainer = document.getElementById('downloadZipContainer');
+      const downloadBtn = document.getElementById('btnDownloadZip');
+      const resultMeta = document.getElementById('zipResultMeta');
+
+      downloadContainer.classList.remove('hidden');
+      resultMeta.innerText = `XML: ${xmlCount} 个 (修改 ${modifiedCount}) | 剔除: ${droppedCount} | 改名: ${renamedCount}`;
+
+      downloadBtn.onclick = () => {
+        const url = URL.createObjectURL(processedZipBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${baseName}_i18n_processed.zip`;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+
+      logMessage(`========================================`, 'meta');
+      logMessage(`处理完成！可点击上方绿色按钮下载处理后的 ZIP。`, 'success');
+      updateStats(`ZIP 完成: ${modifiedCount}/${xmlCount} 修改`);
+    }
+
+    // Detect browser support for File System API on mount
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!('showDirectoryPicker' in window)) {
+        const tip = document.getElementById('fsSupportTip');
+        if (tip) {
+          tip.innerHTML = '<span class="text-amber-500 font-medium">⚠️ 当前浏览器不支持直接读写本地目录，建议切换至「ZIP 包导入导出」或使用 Chrome 浏览器。</span>';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
