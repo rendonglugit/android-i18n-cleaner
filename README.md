@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://rendonglu.github.io/i18n_translate_tool/"><strong>🌐 Live Demo on GitHub Pages</strong></a>
+  <a href="https://rendonglugit.github.io/android-i18n-cleaner/"><strong>🌐 Live Demo on GitHub Pages</strong></a>
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@
 
 ## 🚀 Live Demo
 
-👉 **[Try the Tool Online (GitHub Pages)](https://rendonglu.github.io/i18n_translate_tool/)**
+👉 **[Try the Tool Online (GitHub Pages)](https://rendonglugit.github.io/android-i18n-cleaner/)**
 
 No installation, no CLI commands, and no administrative permissions required. Works out of the box in your web browser.
 
@@ -65,7 +65,7 @@ Traditional shell scripts (`.sh` / `.command`) come with significant friction:
 ## 🛠️ Usage
 
 ### Option 1: Online (Recommended)
-Visit the **[Live Demo](https://rendonglu.github.io/i18n_translate_tool/)** directly in any modern browser.
+Visit the **[Live Demo](https://rendonglugit.github.io/android-i18n-cleaner/)** directly in any modern browser.
 
 ### Option 2: Run Locally
 1. Clone or download this repository.
@@ -83,7 +83,7 @@ You can host this tool on your own GitHub Pages in under a minute:
    git add .
    git commit -m "feat: initial commit"
    git branch -M main
-   git remote add origin https://github.com/<your-username>/<your-repo>.git
+   git remote add origin https://github.com/rendonglugit/android-i18n-cleaner.git
    git push -u origin main
    ```
 2. Navigate to your repository on GitHub:
@@ -91,10 +91,10 @@ You can host this tool on your own GitHub Pages in under a minute:
    - Under **Build and deployment**, set **Source** to `Deploy from a branch`.
    - Select branch `main` and folder `/ (root)`, then click **Save**.
 3. Your web app will be live at:
-   `https://<your-username>.github.io/<your-repo>/`
+   `https://rendonglugit.github.io/android-i18n-cleaner/`
 
 ---
 
 ## 📄 License
 
-[MIT License](LICENSE) © 2026 rendonglu
+[MIT License](LICENSE) © 2026 rendonglugit

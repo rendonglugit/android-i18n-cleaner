@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://rendonglu.github.io/i18n_translate_tool/"><strong>🌐 在线体验 (GitHub Pages)</strong></a>
+  <a href="https://rendonglugit.github.io/android-i18n-cleaner/"><strong>🌐 在线体验 (GitHub Pages)</strong></a>
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@
 
 ## 🚀 在线体验 (Live Demo)
 
-👉 **[点击直接在浏览器中打开 (GitHub Pages)](https://rendonglu.github.io/i18n_translate_tool/)**
+👉 **[点击直接在浏览器中打开 (GitHub Pages)](https://rendonglugit.github.io/android-i18n-cleaner/)**
 
 免安装任何依赖，无命令行，无系统授权弹窗，打开即用。
 
@@ -65,7 +65,7 @@
 ## 🛠️ 使用方式
 
 ### 方式 1：在线直接使用（推荐）
-在现代浏览器中直接访问 **[在线体验链接](https://rendonglu.github.io/i18n_translate_tool/)**。
+在现代浏览器中直接访问 **[在线体验链接](https://rendonglugit.github.io/android-i18n-cleaner/)**。
 
 ### 方式 2：本地离线使用
 1. 克隆或下载本仓库代码。
@@ -83,17 +83,18 @@
    git add .
    git commit -m "feat: initial commit"
    git branch -M main
-   git remote add origin https://github.com/<你的用户名>/<你的仓库名>.git
+   git remote add origin https://github.com/rendonglugit/android-i18n-cleaner.git
    git push -u origin main
    ```
 2. 进入 GitHub 仓库设置：
    - 点击 **Settings** &rarr; 左侧 **Pages**。
    - 在 **Build and deployment** 下将 **Source** 设为 `Deploy from a branch`。
    - 分支选择 `main`，目录选择 `/ (root)`，点击 **Save**。
-3. 部署完成后，即可在 `https://<你的用户名>.github.io/<你的仓库名>/` 访问。
+3. 部署完成后，即可在 `https://rendonglugit.github.io/android-i18n-cleaner/` 访问。
 
 ---
 
 ## 📄 开源协议
 
-[MIT License](LICENSE) © 2026 rendonglu
+[MIT License](LICENSE) © 2026 rendonglugit
+
